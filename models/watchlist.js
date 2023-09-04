@@ -9,7 +9,7 @@ const watchlistSchema = new Schema({
         type: String,
         required: true,
     },
-    assetId: {
+    coinId: {
         type: String,
         required: true,
     },
@@ -25,7 +25,7 @@ watchlistSchema.post("save", handleMongooseError);
 const addSchema = Joi.object({
     name: Joi.string()
         .required(),
-    assetId: Joi.string().required()
+    coinId: Joi.string().required()
 })
 
 const schemas = {
