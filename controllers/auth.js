@@ -26,16 +26,16 @@ const register = async (req, res) => {
     }
 
     const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
-    
-    const newUser = await User.create({ ...req.body, password: hashPassword, avatarURL,});
+
+    const newUser = await User.create({ ...req.body, password: hashPassword, avatarURL, });
 
     res.status(201).json({
         token,
         "user": {
-        firstName: newUser.firstName,
-        userName: newUser.userName,
-        email: newUser.email,
-        avatarURL: newUser.avatarURL,
+            firstName: newUser.firstName,
+            userName: newUser.userName,
+            email: newUser.email,
+            avatarURL: newUser.avatarURL,
         }
     })
 }
@@ -82,16 +82,35 @@ const getCurrent = async (req, res) => {
 const updateUser = async (req, res) => {
     const updateUserData = req.body;
     const { _id } = req.user;
-    await User.findById({ _id });
-    await User.findByIdAndUpdate(_id, updateUserData , { new: true });
-   
+    await User.findByIdAndUpdate(_id, updateUserData, { new: true });
+
     res.json(updateUserData);
+}
+
+const updatePassword = async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    const { _id } = req.user;
+    const user = await User.findById({ _id });
+    const passwordCompare = await bcrypt.compare(oldPassword, user.password);
+    if (!passwordCompare) {
+        throw HttpError(401, "Invalid data");
+    }
+    const hashPassword = await bcrypt.hash(newPassword, 10);
+    const data = {
+        password: hashPassword
+    }
+
+    await User.findByIdAndUpdate(_id, data, { new: true });
+
+    res.status(200).json({
+        message: "Password updated"
+    });
 }
 
 const deleteUser = async (req, res) => {
     const { _id } = req.user;
     await User.findByIdAndDelete(_id);
-   
+
     res.json({
         message: "User deleted successfully"
     });
@@ -134,6 +153,7 @@ module.exports = {
     login: ctrlWrapper(login),
     getCurrent: ctrlWrapper(getCurrent),
     updateUser: ctrlWrapper(updateUser),
+    updatePassword: ctrlWrapper(updatePassword),
     deleteUser: ctrlWrapper(deleteUser),
     logout: ctrlWrapper(logout),
     updateAvatar: ctrlWrapper(updateAvatar),
