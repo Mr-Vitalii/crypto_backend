@@ -4,6 +4,7 @@ const cors = require('cors');
 require("dotenv").config();
 
 const authRouter = require("./routes/api/auth");
+const userRouter = require("./routes/api/user");
 const watchlistRouter = require("./routes/api/watchlist");
 
 const app = express();
@@ -17,6 +18,7 @@ app.use(express.static("public"))
 
 
 app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
 app.use("/api/watchlist", watchlistRouter);
 
 app.use((req, res) => {
@@ -24,8 +26,8 @@ app.use((req, res) => {
 })
 
 app.use((err, req, res, next) => {
-  const {status = 500, message = "Server error"} = err;
-  res.status(status).json({ message, })
+  const { status = 500, message = "Server error" } = err;
+  res.status(status).json({ message })
 })
 
 module.exports = app
